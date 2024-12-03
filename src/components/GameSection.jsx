@@ -2,7 +2,9 @@ import { useState } from 'react';
 
 const GameSection = () => {
     const [word, setWord] = useState('');
-    const [tryWord, setTryWord] = useState(5);
+    const [difficult, setdifficult] = useState(5);
+    const [count, setCount] = useState(0);
+    const [tryWord, setTryWord] = useState([]);
 
     const handlerWord = (e) => {
         setWord(e.target.value);
@@ -10,7 +12,9 @@ const GameSection = () => {
 
     const sendWord = () => {
         if (word.length === 5) {
-            console.log('parola accettata', word);
+            setTryWord((prevTryWord) => [...prevTryWord, word]);
+            setWord('');
+            setCount((prevCount) => prevCount + 1);
         } else {
             console.log('errore');
         }
@@ -31,20 +35,21 @@ const GameSection = () => {
             >
                 Invia
             </button>
-            <p>{word}</p>
-            {Array.from({ length: tryWord }, (index) => {
+            <p>tentativi: {count}</p>
+            <p>Parole usate: {JSON.stringify(tryWord)}</p>
+            {Array.from({ length: 5 }, (_, index) => {
                 return (
                     <section
                         key={index}
                         className="container flex justify-between mt-10"
                     >
-                        {Array.from({ length: 5 }, (index) => {
+                        {Array.from({ length: difficult }, (_, index) => {
                             return (
                                 <div
                                     key={index}
                                     className="w-1/5 aspect-square mx-2 text-center border-2 border-white"
                                 >
-                                    c
+                                    <p>{word[index]}</p>
                                 </div>
                             );
                         })}
