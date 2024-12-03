@@ -1,19 +1,28 @@
 import { useState } from 'react';
 
 const GameSection = () => {
+    //settaggio parola usata
     const [word, setWord] = useState('');
+    //settaggio difficoltà
     const [difficult, setdifficult] = useState(5);
+    //settaggio conto dei tentativi
     const [count, setCount] = useState(0);
+    //settaggio array per le parole usate
     const [tryWord, setTryWord] = useState([]);
 
+    //cambiambento dinamico della variabile word
     const handlerWord = (e) => {
         setWord(e.target.value);
     };
 
+    //invio della parola al click del pulsante
     const sendWord = () => {
+        //controllo della parola
         if (word.length === 5) {
+            //puscho la parola nell'array manenendo l'array precedente con lo spread operator
             setTryWord((prevTryWord) => [...prevTryWord, word]);
             setWord('');
+            //incremento il numero di tentativi
             setCount((prevCount) => prevCount + 1);
         } else {
             console.log('errore');
