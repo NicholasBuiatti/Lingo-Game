@@ -7,8 +7,10 @@ const GameSection = () => {
     const [difficult, setdifficult] = useState(5);
     //settaggio conto dei tentativi
     const [count, setCount] = useState(0);
-    //settaggio array per le parole usate
-    const [tryWord, setTryWord] = useState([]);
+    //settaggio griglia di 5 righe di 5 colonne
+    const [grid, setGrid] = useState(
+        Array.from({ length: 5 }, () => Array(difficult).fill(''))
+    );
 
     //cambiambento dinamico della variabile word
     const handlerWord = (e) => {
@@ -19,11 +21,16 @@ const GameSection = () => {
     const sendWord = () => {
         //controllo della parola
         if (word.length === 5) {
-            //puscho la parola nell'array manenendo l'array precedente con lo spread operator
-            setTryWord((prevTryWord) => [...prevTryWord, word]);
+            // cro una copia della griglia
+            const newGrid = [...grid];
+            // salvo la parola nel posto del tentativo con split dividendo ogni lettera
+            newGrid[count] = word.split('');
+            // salvo l'array creato con la parola nell'array originale
+            setGrid(newGrid);
             setWord('');
             //incremento il numero di tentativi
             setCount((prevCount) => prevCount + 1);
+            console.log(grid);
         } else {
             console.log('errore');
         }
@@ -45,26 +52,22 @@ const GameSection = () => {
                 Invia
             </button>
             <p>tentativi: {count}</p>
-            <p>Parole usate: {JSON.stringify(tryWord)}</p>
-            {Array.from({ length: 5 }, (_, index) => {
-                return (
-                    <section
-                        key={index}
-                        className="container flex justify-between mt-10"
-                    >
-                        {Array.from({ length: difficult }, (_, index) => {
-                            return (
-                                <div
-                                    key={index}
-                                    className="w-1/5 aspect-square mx-2 text-center border-2 border-white"
-                                >
-                                    <p>{word[index]}</p>
-                                </div>
-                            );
-                        })}
-                    </section>
-                );
-            })}
+
+            {grid.map((row, index) => (
+                <section
+                    key={index}
+                    className="container flex justify-between mt-10"
+                >
+                    {row.map((letter, colIndex) => (
+                        <div
+                            key={colIndex}
+                            className="w-1/5 aspect-square mx-2 text-center border-2 border-white flex items-center justify-center"
+                        >
+                            <p>{letter}</p>
+                        </div>
+                    ))}
+                </section>
+            ))}
         </div>
     );
 };
