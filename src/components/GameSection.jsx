@@ -1,19 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dataParole from '../data/parole.json';
 
 const GameSection = () => {
-    //numero casuale tra 0 e 766 che sono il numero di parole nel file json
-    const casualNumber = Math.floor(Math.random() * 767);
-    //estrazione della parola casualmente
-    const casualWord = dataParole.parole[casualNumber];
+    const [casualNumber, setCasualNumber] = useState(0);
+    const [casualWord, setCasualWord] = useState('');
     //settaggio parola usata
     const [word, setWord] = useState('');
     //settaggio conto dei tentativi
     const [count, setCount] = useState(0);
     //settaggio griglia di 5 righe di colonne pari al numero di lettere della parola selezionata
-    const [grid, setGrid] = useState(
-        Array.from({ length: 5 }, () => Array(casualWord.length).fill(''))
-    );
+    const [grid, setGrid] = useState([]);
+
+    useEffect(() => {
+        const randomNum = Math.floor(Math.random() * 767);
+        const wordSelected = dataParole.parole[randomNum];
+        //numero casuale tra 0 e 766 che sono il numero di parole nel file json
+        setCasualNumber(randomNum);
+        //estrazione della parola casualmente
+        setCasualWord(wordSelected);
+        setGrid(
+            Array.from({ length: 5 }, () => Array(wordSelected.length).fill(''))
+        );
+    }, []);
 
     console.log(dataParole.parole[casualNumber], casualWord.length);
 
@@ -25,11 +33,12 @@ const GameSection = () => {
     //invio della parola al click del pulsante
     const sendWord = () => {
         //controllo della parola
-        if (word.length === 5) {
-            // cro una copia della griglia
+        if (word.length === casualWord.length) {
+            // creo una copia della griglia
             const newGrid = [...grid];
             // salvo la parola nel posto del tentativo con split dividendo ogni lettera
             newGrid[count] = word.split('');
+
             // salvo l'array creato con la parola nell'array originale
             setGrid(newGrid);
             setWord('');
