@@ -1,16 +1,21 @@
 import { useState } from 'react';
+import dataParole from '../data/parole.json';
 
 const GameSection = () => {
+    //numero casuale tra 0 e 766 che sono il numero di parole nel file json
+    const casualNumber = Math.floor(Math.random() * 767);
+    //estrazione della parola casualmente
+    const casualWord = dataParole.parole[casualNumber];
     //settaggio parola usata
     const [word, setWord] = useState('');
-    //settaggio difficoltà
-    const [difficult, setdifficult] = useState(5);
     //settaggio conto dei tentativi
     const [count, setCount] = useState(0);
-    //settaggio griglia di 5 righe di 5 colonne
+    //settaggio griglia di 5 righe di colonne pari al numero di lettere della parola selezionata
     const [grid, setGrid] = useState(
-        Array.from({ length: 5 }, () => Array(difficult).fill(''))
+        Array.from({ length: 5 }, () => Array(casualWord.length).fill(''))
     );
+
+    console.log(dataParole.parole[casualNumber], casualWord.length);
 
     //cambiambento dinamico della variabile word
     const handlerWord = (e) => {
