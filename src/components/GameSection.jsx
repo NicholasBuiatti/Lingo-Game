@@ -38,7 +38,6 @@ const GameSection = () => {
             const newGrid = [...grid];
             // salvo la parola nel posto del tentativo con split dividendo ogni lettera
             newGrid[count] = word.split('');
-
             // salvo l'array creato con la parola nell'array originale
             setGrid(newGrid);
             setWord('');
@@ -56,7 +55,7 @@ const GameSection = () => {
                 type="text"
                 onChange={handlerWord}
                 value={word}
-                maxLength={5}
+                maxLength={casualWord.length}
             />
             <button
                 type="button"
@@ -75,9 +74,17 @@ const GameSection = () => {
                     {row.map((letter, colIndex) => (
                         <div
                             key={colIndex}
-                            className="w-1/5 aspect-square mx-2 text-center border-2 border-white flex items-center justify-center"
+                            className={`${
+                                casualWord.includes(letter) ? 'bg-white' : ''
+                            } ${
+                                casualWord[colIndex] == letter
+                                    ? 'bg-green-500'
+                                    : ''
+                            } w-1/5 aspect-square mx-2 text-center border-2 border-white flex items-center justify-center`}
                         >
-                            <p>{letter}</p>
+                            <p className="text-4xl font-bold">
+                                {letter.toUpperCase()}
+                            </p>
                         </div>
                     ))}
                 </section>
