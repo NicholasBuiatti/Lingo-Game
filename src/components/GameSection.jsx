@@ -12,18 +12,25 @@ const GameSection = () => {
     const [grid, setGrid] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
     const [isEndGame, setIsEndGame] = useState(false);
-
+    const [isNewGame, setIsNewGame] = useState(true);
     useEffect(() => {
-        const randomNum = Math.floor(Math.random() * 767);
-        const wordSelected = dataParole.parole[randomNum];
-        //numero casuale tra 0 e 766 che sono il numero di parole nel file json
-        setCasualNumber(randomNum);
-        //estrazione della parola casualmente
-        setCasualWord(wordSelected);
-        setGrid(
-            Array.from({ length: 5 }, () => Array(wordSelected.length).fill(''))
-        );
-    }, []);
+        if (isNewGame) {
+            //numero casuale tra 0 e 766 che sono il numero di parole nel file json
+            const randomNum = Math.floor(Math.random() * 767);
+            const wordSelected = dataParole.parole[randomNum];
+            setCasualNumber(randomNum);
+            //estrazione della parola casualmente
+            setCasualWord(wordSelected);
+            setGrid(
+                Array.from({ length: 5 }, () =>
+                    Array(wordSelected.length).fill('')
+                )
+            );
+            setCount(0);
+            // Resetta isNewGame a false dopo aver avviato la nuova partita
+            setIsNewGame(false);
+        }
+    }, [isNewGame]);
 
     console.log(dataParole.parole[casualNumber], casualWord.length);
 
@@ -103,6 +110,13 @@ const GameSection = () => {
                         </span>
                     )}
                 </p>
+                <button
+                    type="button"
+                    onClick={() => setIsNewGame(true)}
+                    className="p-2 border-2"
+                >
+                    Nuova partita
+                </button>
             </div>
 
             <p className="text-red-700 font-semibold underline">
