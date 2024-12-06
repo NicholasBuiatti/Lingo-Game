@@ -42,7 +42,11 @@ const GameSection = () => {
         setIsEndGame(false);
         setErrorMessage('');
         //controllo della parola
-        if (count < 5 && word.length === casualWord.length) {
+        if (
+            count < 5 &&
+            word.length === casualWord.length &&
+            /^[a-zA-Z]+$/.test(word)
+        ) {
             // creo una copia della griglia
             const newGrid = [...grid];
             // salvo la parola nel posto del tentativo con split dividendo ogni lettera
@@ -55,7 +59,9 @@ const GameSection = () => {
             console.log(grid);
         } else {
             setErrorMessage(
-                `La parola deve essere lunga ${casualWord.length} lettere.`
+                word.length !== casualWord.length
+                    ? `La parola deve essere lunga ${casualWord.length} lettere.`
+                    : 'La parola può contenere solo lettere.'
             );
             console.log('errore');
         }
@@ -85,16 +91,24 @@ const GameSection = () => {
                     }`}
                     disabled={isEndGame}
                 />
-                <p>
-                    TENTATIVI:{' '}
-                    <span className="bg-blue-400 rounded-full p-1 border-2 border-black">
-                        {count}
-                    </span>
+                <p className="">
+                    TENTATIVO N:{' '}
+                    {count < 5 ? (
+                        <span className="ml-1 text-2xl font-bold text-red-700">
+                            {count + 1}
+                        </span>
+                    ) : (
+                        <span className="ml-1 text-2xl font-bold text-red-700">
+                            GAME OVER
+                        </span>
+                    )}
                 </p>
             </div>
 
-            <p>{errorMessage}</p>
-            {isEndGame && <p>gioco finito</p>}
+            <p className="text-red-700 font-semibold underline">
+                {errorMessage}
+            </p>
+
             {grid.map((row, index) => (
                 <section key={index} className="flex mt-5">
                     {row.map((letter, colIndex) => (
