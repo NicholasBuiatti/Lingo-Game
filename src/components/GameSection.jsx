@@ -10,6 +10,8 @@ const GameSection = () => {
     const [count, setCount] = useState(0);
     //settaggio griglia di 5 righe di colonne pari al numero di lettere della parola selezionata
     const [grid, setGrid] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isEndGame, setIsEndGame] = useState(false);
 
     useEffect(() => {
         const randomNum = Math.floor(Math.random() * 767);
@@ -30,10 +32,17 @@ const GameSection = () => {
         setWord(e.target.value);
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            sendWord();
+        }
+    };
     //invio della parola al click del pulsante
     const sendWord = () => {
+        setIsEndGame(false);
+        setErrorMessage('');
         //controllo della parola
-        if (word.length === casualWord.length) {
+        if (count < 5 && word.length === casualWord.length) {
             // creo una copia della griglia
             const newGrid = [...grid];
             // salvo la parola nel posto del tentativo con split dividendo ogni lettera
@@ -45,42 +54,62 @@ const GameSection = () => {
             setCount((prevCount) => prevCount + 1);
             console.log(grid);
         } else {
+            setErrorMessage(
+                `La parola deve essere lunga ${casualWord.length} lettere.`
+            );
             console.log('errore');
         }
     };
 
-    return (
-        <div>
-            <input
-                type="text"
-                onChange={handlerWord}
-                value={word}
-                maxLength={casualWord.length}
-            />
-            <button
-                type="button"
-                className="p-2 border-2 border-red-700"
-                onClick={sendWord}
-            >
-                Invia
-            </button>
-            <p>tentativi: {count}</p>
+    useEffect(() => {
+        if (casualWord !== '' && casualWord == word) {
+            setIsEndGame(true);
+        } else if (count >= 5) {
+            setIsEndGame(true);
+        }
+    }, [count]);
 
+    return (
+        <div className="h-full overflow-auto">
+            <div className="flex items-center">
+                <input
+                    type="text"
+                    onChange={handlerWord}
+                    onKeyDown={handleKeyDown}
+                    value={word}
+                    maxLength={casualWord.length}
+                    className={`p-2 border-2 border-black rounded-full m-2 focus:border-blue-800 ${
+                        isEndGame
+                            ? 'border-gray-400 text-gray-400 bg-slate-200 opacity-50'
+                            : ''
+                    }`}
+                    disabled={isEndGame}
+                />
+                <p>
+                    TENTATIVI:{' '}
+                    <span className="bg-blue-400 rounded-full p-1 border-2 border-black">
+                        {count}
+                    </span>
+                </p>
+            </div>
+
+            <p>{errorMessage}</p>
+            {isEndGame && <p>gioco finito</p>}
             {grid.map((row, index) => (
-                <section
-                    key={index}
-                    className="container flex justify-between mt-10"
-                >
+                <section key={index} className="flex mt-5">
                     {row.map((letter, colIndex) => (
                         <div
                             key={colIndex}
                             className={`${
-                                casualWord.includes(letter) ? 'bg-white' : ''
-                            } ${
-                                casualWord[colIndex] == letter
+                                letter !== '' &&
+                                casualWord[colIndex]?.toLowerCase() ===
+                                    letter.toLowerCase()
                                     ? 'bg-green-500'
+                                    : letter !== '' &&
+                                      casualWord.includes(letter)
+                                    ? 'bg-yellow-500'
                                     : ''
-                            } w-1/5 aspect-square mx-2 text-center border-2 border-white flex items-center justify-center`}
+                            } w-24 aspect-square mx-2 text-center border-4 rounded-2xl border-white flex items-center justify-center`}
                         >
                             <p className="text-4xl font-bold">
                                 {letter.toUpperCase()}
