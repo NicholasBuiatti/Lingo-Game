@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import dataParole from '../data/parole.json';
+import Swal from 'sweetalert2';
 
 const GameSection = () => {
     const [casualNumber, setCasualNumber] = useState(0);
@@ -13,6 +14,9 @@ const GameSection = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [isEndGame, setIsEndGame] = useState(false);
     const [isNewGame, setIsNewGame] = useState(true);
+    const [win, lose] = useState(false);
+    const [tryWord, setTryWord] = useState('');
+
     useEffect(() => {
         if (isNewGame) {
             //numero casuale tra 0 e 766 che sono il numero di parole nel file json
@@ -44,7 +48,7 @@ const GameSection = () => {
             sendWord();
         }
     };
-    //invio della parola al click del pulsante
+    //invio della parola
     const sendWord = () => {
         setIsEndGame(false);
         setErrorMessage('');
@@ -60,6 +64,7 @@ const GameSection = () => {
             newGrid[count] = word.split('');
             // salvo l'array creato con la parola nell'array originale
             setGrid(newGrid);
+            setTryWord(word);
             setWord('');
             //incremento il numero di tentativi
             setCount((prevCount) => prevCount + 1);
@@ -75,16 +80,40 @@ const GameSection = () => {
     };
 
     useEffect(() => {
-        if (casualWord !== '' && casualWord == word) {
+        if (
+            tryWord !== '' &&
+            casualWord.toLowerCase() == tryWord.toLowerCase() &&
+            count < 5
+        ) {
             setIsEndGame(true);
+            lose(true);
+            setCount(count);
+            Swal.fire(
+                'Hai vinto! Complimenti',
+                'Inizia una nuova partita!',
+                'success'
+            );
+            console.log('hai vinto');
         } else if (count >= 5) {
             setIsEndGame(true);
+            lose(true);
+            Swal.fire(
+                'Hai perso! Ritenta!',
+                `Mi dispaice hai perso, la parola era ${casualWord}`,
+                'error'
+            );
+            console.log('hai perso', count);
         }
-    }, [count]);
+    }, [win, count]);
+    console.log('word:', word);
+    const reset = () => {
+        setIsNewGame(true);
+        setIsEndGame(false);
+    };
 
     return (
-        <div className="h-full overflow-auto">
-            <div className="flex items-center">
+        <div className="h-full overflow-auto relative">
+            <div className="flex items-center gap-20">
                 <input
                     type="text"
                     onChange={handlerWord}
@@ -110,19 +139,19 @@ const GameSection = () => {
                         </span>
                     )}
                 </p>
+
                 <button
                     type="button"
-                    onClick={() => setIsNewGame(true)}
-                    className="p-2 border-2"
+                    onClick={() => reset()}
+                    className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 shadow-lg shadow-blue-500/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 "
                 >
-                    Nuova partita
+                    Nuova Partita
                 </button>
             </div>
 
             <p className="text-red-700 font-semibold underline">
                 {errorMessage}
             </p>
-
             {grid.map((row, index) => (
                 <section key={index} className="flex mt-5">
                     {row.map((letter, colIndex) => (
