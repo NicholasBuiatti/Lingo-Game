@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import dataParole from '../data/parole.json';
-import Swal from 'sweetalert2';
-
+import { motion, AnimatePresence } from 'framer-motion';
 const GameSection = () => {
     const [casualNumber, setCasualNumber] = useState(0);
     const [casualWord, setCasualWord] = useState('');
@@ -14,8 +13,9 @@ const GameSection = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [isEndGame, setIsEndGame] = useState(false);
     const [isNewGame, setIsNewGame] = useState(true);
-    const [win, lose] = useState(false);
     const [tryWord, setTryWord] = useState('');
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
 
     useEffect(() => {
         if (isNewGame) {
@@ -50,7 +50,6 @@ const GameSection = () => {
     };
     //invio della parola
     const sendWord = () => {
-        setIsEndGame(false);
         setErrorMessage('');
         //controllo della parola
         if (
@@ -65,10 +64,10 @@ const GameSection = () => {
             // salvo l'array creato con la parola nell'array originale
             setGrid(newGrid);
             setTryWord(word);
+            console.log('try:', tryWord);
             setWord('');
             //incremento il numero di tentativi
             setCount((prevCount) => prevCount + 1);
-            console.log(grid);
         } else {
             setErrorMessage(
                 word.length !== casualWord.length
@@ -82,34 +81,26 @@ const GameSection = () => {
     useEffect(() => {
         if (
             tryWord !== '' &&
-            casualWord.toLowerCase() == tryWord.toLowerCase() &&
+            casualWord.toLowerCase() === tryWord.toLowerCase() &&
             count < 5
         ) {
             setIsEndGame(true);
-            lose(true);
-            setCount(count);
-            Swal.fire(
-                'Hai vinto! Complimenti',
-                'Inizia una nuova partita!',
-                'success'
+            setPopupMessage(
+                'Hai vinto! Complimenti! Inizia una nuova partita!'
             );
-            console.log('hai vinto');
+            setShowPopup(true);
         } else if (count >= 5) {
             setIsEndGame(true);
-            lose(true);
-            Swal.fire(
-                'Hai perso! Ritenta!',
-                `Mi dispaice hai perso, la parola era ${casualWord}`,
-                'error'
-            );
-            console.log('hai perso', count);
+            setPopupMessage(`Hai perso! La parola era "${casualWord}"`);
+            setShowPopup(true);
         }
-    }, [win, count]);
-    console.log('word:', word);
+    }, [tryWord, count]);
+
     const reset = () => {
         setIsNewGame(true);
         setIsEndGame(false);
     };
+    console.log(tryWord);
 
     return (
         <div className="h-full overflow-auto relative">
@@ -139,7 +130,6 @@ const GameSection = () => {
                         </span>
                     )}
                 </p>
-
                 <button
                     type="button"
                     onClick={() => reset()}
@@ -152,6 +142,35 @@ const GameSection = () => {
             <p className="text-red-700 font-semibold underline">
                 {errorMessage}
             </p>
+            <AnimatePresence>
+                {showPopup && (
+                    <motion.div
+                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <motion.div
+                            className="bg-white rounded-lg p-6 text-center shadow-lg w-80"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <h2 className="text-xl font-bold mb-4">
+                                {popupMessage}
+                            </h2>
+                            <button
+                                onClick={() => setShowPopup(false)}
+                                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                            >
+                                Chiudi
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             {grid.map((row, index) => (
                 <section key={index} className="flex mt-5">
                     {row.map((letter, colIndex) => (
