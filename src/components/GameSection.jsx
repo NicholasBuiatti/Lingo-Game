@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import dataParole from '../data/parole.json';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+
 const GameSection = () => {
     const [casualNumber, setCasualNumber] = useState(0);
     const [casualWord, setCasualWord] = useState('');
@@ -17,6 +19,7 @@ const GameSection = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [popupMessage, setPopupMessage] = useState('');
 
+    //creazione funzione per iniziare un nuovo gioco
     useEffect(() => {
         if (isNewGame) {
             //numero casuale tra 0 e 766 che sono il numero di parole nel file json
@@ -43,11 +46,35 @@ const GameSection = () => {
         setWord(e.target.value);
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            sendWord();
+    //controllo tramite API che la parola inserita dall'utente esista
+    const checkWord = async () => {
+        // Cerca la parola esatta
+        const response = await axios.get(
+            `https://api.datamuse.com/words?sp=${word}&max=1`
+        );
+        if (response.data.length > 0) {
+            // La parola esiste
+            return true;
+        } else {
+            // La parola non è trovata
+            return false;
         }
     };
+
+    //funzione che parte alla pressione del tasto invio
+    const handleKeyDown = async (e) => {
+        if (e.key === 'Enter') {
+            // Usa await per aspettare il risultato della Promise
+            const wordExists = await checkWord(word);
+
+            if (wordExists) {
+                sendWord();
+            } else {
+                setErrorMessage('La parola non esiste!');
+            }
+        }
+    };
+
     //invio della parola
     const sendWord = () => {
         setErrorMessage('');
@@ -63,8 +90,8 @@ const GameSection = () => {
             newGrid[count] = word.split('');
             // salvo l'array creato con la parola nell'array originale
             setGrid(newGrid);
+            //salvo la parola in una variabile di appoggio
             setTryWord(word);
-            console.log('try:', tryWord);
             setWord('');
             //incremento il numero di tentativi
             setCount((prevCount) => prevCount + 1);
@@ -74,10 +101,10 @@ const GameSection = () => {
                     ? `La parola deve essere lunga ${casualWord.length} lettere.`
                     : 'La parola può contenere solo lettere.'
             );
-            console.log('errore');
         }
     };
 
+    //visualizzo il popup di vincita o sconfitta
     useEffect(() => {
         if (
             tryWord !== '' &&
@@ -96,6 +123,7 @@ const GameSection = () => {
         }
     }, [tryWord, count]);
 
+    //funzione per il reset del gioco
     const reset = () => {
         setIsNewGame(true);
         setIsEndGame(false);
