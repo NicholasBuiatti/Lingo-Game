@@ -65,7 +65,7 @@ const GameSection = () => {
     const handleKeyDown = async (e) => {
         if (e.key === 'Enter') {
             // Usa await per aspettare il risultato della Promise
-            const wordExists = await checkWord(word);
+            const wordExists = await checkWord();
 
             if (wordExists) {
                 sendWord();
@@ -108,15 +108,14 @@ const GameSection = () => {
     useEffect(() => {
         if (
             tryWord !== '' &&
-            casualWord.toLowerCase() === tryWord.toLowerCase() &&
-            count < 5
+            casualWord.toLowerCase() === tryWord.toLowerCase()
         ) {
             setIsEndGame(true);
             setPopupMessage(
                 'Hai vinto! Complimenti! Inizia una nuova partita!'
             );
             setShowPopup(true);
-        } else if (count >= 5) {
+        } else if (count + 1 == 6) {
             setIsEndGame(true);
             setPopupMessage(`Hai perso! La parola era "${casualWord}"`);
             setShowPopup(true);
